@@ -278,19 +278,13 @@ namespace Microsoft.Net.Http.Headers
             }
 
             // "text/plain" is a subset of "text/plain", "text/*" and "*/*". "*/*" is a subset only of "*/*".
-            if (!Type.Equals(otherMediaType.Type, comparisonType: StringComparison.OrdinalIgnoreCase))
+            if (!MatchesType(otherMediaType))
             {
-                if (!otherMediaType.MatchesAllTypes)
-                {
-                    return false;
-                }
+                return false;
             }
-            else if (!SubType.Equals(otherMediaType.SubType, comparisonType: StringComparison.OrdinalIgnoreCase))
+            else if (!MatchesSubtype(otherMediaType))
             {
-                if (!otherMediaType.MatchesAllSubTypes)
-                {
-                    return false;
-                }
+                return false;
             }
 
             // "text/plain; charset=utf-8; level=1" is a subset of "text/plain; charset=utf-8". In turn
@@ -301,6 +295,13 @@ namespace Microsoft.Net.Http.Headers
                 // parameters locally; they make this one more specific.
                 foreach (var parameter in otherMediaType._parameters)
                 {
+                    if (parameter.Name.Equals("*", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // A parameter named "*" has no effect on media type matching, as it is only used as an indication
+                        // that the entire media type string should be treated as a wildcard.
+                        continue;
+                    }
+
                     if (parameter.Name.Equals("q", StringComparison.OrdinalIgnoreCase))
                     {
                         // "q" and later parameters are not involved in media type matching. Quoting the RFC: The first
@@ -323,6 +324,48 @@ namespace Microsoft.Net.Http.Headers
             }
 
             return true;
+        }
+
+        private bool MatchesType(MediaTypeHeaderValue set)
+        {
+            return set.MatchesAllTypes ||
+                set.Type.Equals(Type, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool MatchesSubtype(MediaTypeHeaderValue set)
+        {
+            if (set.MatchesAllSubTypes)
+            {
+                return true;
+            }
+            if (set.SubTypeSuffix.HasValue)
+            {
+                if (SubTypeSuffix.HasValue)
+                {
+                    return MatchesSubtypeWithoutSuffix(set) && MatchesSubtypeSuffix(set);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return set.SubType.Equals(SubType, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        private bool MatchesSubtypeWithoutSuffix(MediaTypeHeaderValue set)
+        {
+            return set.MatchesAllSubTypesWithoutSuffix ||
+                set.SubTypeWithoutSuffix.Equals(SubTypeWithoutSuffix, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool MatchesSubtypeSuffix(MediaTypeHeaderValue set)
+        {
+            // We don't have support for wildcards on suffixes alone (e.g., "application/entity+*")
+            // because there's no clear use case for it.
+            return set.SubTypeSuffix.Equals(SubTypeSuffix, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
