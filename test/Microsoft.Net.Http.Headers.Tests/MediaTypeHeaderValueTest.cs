@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Primitives;
 using Xunit;
 
 namespace Microsoft.Net.Http.Headers
@@ -37,6 +38,56 @@ namespace Microsoft.Net.Http.Headers
             AssertFormatException("text/plain; charset=utf-8; ");
             AssertFormatException("text/plain;");
             AssertFormatException("text/plain;charset=utf-8"); // ctor takes only media-type name, no parameters
+        }
+
+        public static IEnumerable<string[]> MediaTypesWithSuffixes
+        {
+            get
+            {
+                return new List<string[]>
+                 {
+                     // See https://tools.ietf.org/html/rfc6838#section-4.2 for allowed names spec
+                     new[] { "application/json", "json", null },
+                     new[] { "application/json+", "json", "" },
+                     new[] { "application/+json", "", "json" },
+                     new[] { "application/entitytype+json", "entitytype", "json" },
+                 };
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(MediaTypesWithSuffixes))]
+        public void Ctor_CanParseSuffixedMediaTypes(string mediaType, string expectedSubTypeWithoutSuffix, string expectedSubTypeSuffix)
+        {
+            var result = new MediaTypeHeaderValue(mediaType);
+
+            Assert.Equal(new StringSegment(expectedSubTypeWithoutSuffix), result.SubTypeWithoutSuffix); // TODO consider overloading to have SubTypeWithoutSuffix?
+            Assert.Equal(new StringSegment(expectedSubTypeSuffix), result.SubTypeSuffix);
+        }
+
+        public static IEnumerable<string[]> MediaTypesWithSuffixesAndSpaces
+        {
+            get
+            {
+                return new List<string[]>
+                 {
+                     // See https://tools.ietf.org/html/rfc6838#section-4.2 for allowed names spec
+                     new[] { "    application   /  json+xml", "json", "xml" },
+                     new[] { "  application /  vnd.com-pany.some+entity!.v2+js.#$&^_n  ; q=\"0.3+1\"", "vnd.com-pany.some+entity!.v2", "js.#$&^_n"},
+                     new[] { "   application/    +json", "", "json" },
+                     new[] { "  application/   entitytype+json    ", "entitytype", "json" },
+                 };
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(MediaTypesWithSuffixesAndSpaces))]
+        public void Parse_CanParseSuffixedMediaTypes(string mediaType, string expectedSubTypeWithoutSuffix, string expectedSubTypeSuffix)
+        {
+            var result = MediaTypeHeaderValue.Parse(mediaType);
+
+            Assert.Equal(new StringSegment(expectedSubTypeWithoutSuffix), result.SubTypeWithoutSuffix); // TODO consider overloading to have SubTypeWithoutSuffix?
+            Assert.Equal(new StringSegment(expectedSubTypeSuffix), result.SubTypeSuffix);
         }
 
         [Fact]
@@ -325,7 +376,7 @@ namespace Microsoft.Net.Http.Headers
             Assert.False(mediaType5.Equals(mediaType6), "charset vs. custom param.");
             Assert.False(mediaType1.Equals(mediaType7), "text/plain vs. text/other.");
         }
-
+        
         [Fact]
         public void Parse_SetOfValidValueStrings_ParsedCorrectly()
         {

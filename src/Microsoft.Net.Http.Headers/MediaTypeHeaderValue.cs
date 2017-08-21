@@ -197,6 +197,37 @@ namespace Microsoft.Net.Http.Headers
             }
         }
 
+        public StringSegment SubTypeWithoutSuffix
+        {
+            get
+            {
+                var subTypeSuffixLength = _mediaType.LastIndexOf('+');
+                var length = _mediaType.IndexOf('/') + 1;
+                if (subTypeSuffixLength == -1)
+                {
+                    return _mediaType.Subsegment(length);
+                }
+                return _mediaType.Subsegment(length, subTypeSuffixLength - length);
+            }
+        }
+
+        public StringSegment SubTypeSuffix
+        {
+            get
+            {
+                var subTypeSuffixLength = _mediaType.LastIndexOf('+');
+                if (subTypeSuffixLength == -1)
+                {
+                    return default(StringSegment);
+                }
+                return _mediaType.Subsegment(subTypeSuffixLength + 1);
+            }
+        }
+
+
+        public bool MatchesAllSubTypesWithoutSuffix => SubTypeWithoutSuffix.Equals("*", StringComparison.OrdinalIgnoreCase);
+
+
         /// <summary>
         /// MediaType = "*/*"
         /// </summary>
@@ -485,6 +516,22 @@ namespace Microsoft.Net.Http.Headers
             }
 
             return mediaTypeLength;
+        }
+
+        // TODO decide if we need this.
+        private static bool GetSuffixLength(StringSegment subType, out int suffixLength)
+        {
+            var startPosition = subType.Offset + subType.Length - 1;
+            for (var currentPosition = startPosition; currentPosition >= subType.Offset; currentPosition--)
+            {
+                if (subType.Buffer[currentPosition] == '+')
+                {
+                    suffixLength = startPosition - currentPosition;
+                    return true;
+                }
+            }
+            suffixLength = 0;
+            return false;
         }
 
         private static void CheckMediaTypeFormat(StringSegment mediaType, string parameterName)
