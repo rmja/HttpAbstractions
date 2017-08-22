@@ -18,6 +18,8 @@ namespace Microsoft.Net.Http.Headers
         private const string ValueString = "value";
         private const string MediaTypeString = "mediaType";
         private const string WildcardString = "*";
+        private const string MatchesAllString = "*/*";
+
         private const char PlusCharacter = '+';
         private const char ForwardSlashCharacter = '/';
         private const char PeriodCharacter = '.';
@@ -40,10 +42,8 @@ namespace Microsoft.Net.Http.Headers
         /// <summary>
         /// Initializes a <see cref="MediaTypeHeaderValue"/> instance.
         /// </summary>
-        /// <param name="mediaType">The <see cref="StringSegment"/> with the media type. The media type constructed here must not have any
-        /// trailing parameters.</param>
-        /// <example>
-        /// </example>
+        /// <param name="mediaType">The <see cref="StringSegment"/> with the media type.
+        /// The media type constructed here must not have any trailing parameters.</param>
         public MediaTypeHeaderValue(StringSegment mediaType)
         {
             CheckMediaTypeFormat(mediaType, MediaTypeString);
@@ -53,8 +53,8 @@ namespace Microsoft.Net.Http.Headers
         /// <summary>
         /// Initializes a <see cref="MediaTypeHeaderValue"/> instance.
         /// </summary>
-        /// <param name="mediaType">The <see cref="StringSegment"/> with the media type. The media type constructed here must not have any
-        /// trailing parameters.</param>
+        /// <param name="mediaType">The <see cref="StringSegment"/> with the media type.
+        /// The media type constructed here must not have any trailing parameters.</param>
         /// <param name="quality">The <see cref="double"/> with the quality of the media type.</param>
         public MediaTypeHeaderValue(StringSegment mediaType, double quality)
             : this(mediaType)
@@ -208,7 +208,8 @@ namespace Microsoft.Net.Http.Headers
         /// Gets the quality of the media type in the parameters of <see cref="MediaTypeHeaderValue"/>
         /// </summary>
         /// <example>
-        /// For the media type <c>"application/json"</c>, the property gives the value <c>"application/json"</c>.
+        /// For the media type <c>"application/json"</c>, the property gives the value
+        /// <c>"application/json"</c>.
         /// </example>
         public StringSegment MediaType
         {
@@ -216,7 +217,7 @@ namespace Microsoft.Net.Http.Headers
             set
             {
                 HeaderUtilities.ThrowIfReadOnly(IsReadOnly);
-                CheckMediaTypeFormat(value, );
+                CheckMediaTypeFormat(value, ValueString);
                 _mediaType = value;
             }
         }
@@ -273,6 +274,7 @@ namespace Microsoft.Net.Http.Headers
 
         /// <summary>
         /// Gets the structured syntax suffix of the <see cref="MediaTypeHeaderValue"/> if it has one.
+        /// See <see href="https://tools.ietf.org/html/rfc6838#section-4.8">The RFC documentation on structured syntaxes.</see>
         /// </summary>
         /// <example>
         /// For the media type <c>"application/vnd.example+json"</c>, the property gives the value
@@ -298,7 +300,7 @@ namespace Microsoft.Net.Http.Headers
         /// </summary>
         /// <example>
         /// For the media type <c>"application/vnd.example+json"</c>, the property gives the value:
-        /// { vnd, example}
+        /// <c>{"vnd", "example"}</c>
         /// </example>
         public IList<StringSegment> Facets
         {
@@ -311,7 +313,7 @@ namespace Microsoft.Net.Http.Headers
         /// <summary>
         /// Gets whether this <see cref="MediaTypeHeaderValue"/> matches all types.
         /// </summary>
-        public bool MatchesAllTypes => MediaType.Equals(, StringComparison.Ordinal);
+        public bool MatchesAllTypes => MediaType.Equals(MatchesAllString, StringComparison.Ordinal);
 
         /// <summary>
         /// Gets whether this <see cref="MediaTypeHeaderValue"/> matches all subtypes.
@@ -333,7 +335,8 @@ namespace Microsoft.Net.Http.Headers
         /// <example>
         /// For the media type <c>"application/vnd.example+json"</c>, this property is <c>false</c>.
         /// </example>
-        public bool MatchesAllSubTypesWithoutSuffix => SubTypeWithoutSuffix.Equals(WildcardString, StringComparison.OrdinalIgnoreCase);
+        public bool MatchesAllSubTypesWithoutSuffix =>
+            SubTypeWithoutSuffix.Equals(WildcardString, StringComparison.OrdinalIgnoreCase);
 
         public bool IsReadOnly
         {
