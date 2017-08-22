@@ -15,6 +15,12 @@ namespace Microsoft.Net.Http.Headers
     {
         private const string CharsetString = "charset";
         private const string BoundaryString = "boundary";
+        private const string ValueString = "value";
+        private const string MediaTypeString = "mediaType";
+        private const string WildcardString = "*";
+        private const char PlusCharacter = '+';
+        private const char ForwardSlashCharacter = '/';
+        private const char PeriodCharacter = '.';
 
         private static readonly HttpHeaderParser<MediaTypeHeaderValue> SingleValueParser
             = new GenericHeaderParser<MediaTypeHeaderValue>(false, GetMediaTypeLength);
@@ -40,7 +46,7 @@ namespace Microsoft.Net.Http.Headers
         /// </example>
         public MediaTypeHeaderValue(StringSegment mediaType)
         {
-            CheckMediaTypeFormat(mediaType, "mediaType");
+            CheckMediaTypeFormat(mediaType, MediaTypeString);
             _mediaType = mediaType;
         }
 
@@ -210,7 +216,7 @@ namespace Microsoft.Net.Http.Headers
             set
             {
                 HeaderUtilities.ThrowIfReadOnly(IsReadOnly);
-                CheckMediaTypeFormat(value, "value");
+                CheckMediaTypeFormat(value, );
                 _mediaType = value;
             }
         }
@@ -225,7 +231,7 @@ namespace Microsoft.Net.Http.Headers
         {
             get
             {
-                return _mediaType.Subsegment(0, _mediaType.IndexOf('/'));
+                return _mediaType.Subsegment(0, _mediaType.IndexOf(ForwardSlashCharacter));
             }
         }
 
@@ -240,7 +246,7 @@ namespace Microsoft.Net.Http.Headers
         {
             get
             {
-                return _mediaType.Subsegment(_mediaType.IndexOf('/') + 1);
+                return _mediaType.Subsegment(_mediaType.IndexOf(ForwardSlashCharacter) + 1);
             }
         }
 
@@ -255,8 +261,8 @@ namespace Microsoft.Net.Http.Headers
         {
             get
             {
-                var subTypeSuffixLength = _mediaType.LastIndexOf('+');
-                var length = _mediaType.IndexOf('/') + 1;
+                var subTypeSuffixLength = _mediaType.LastIndexOf(PlusCharacter);
+                var length = _mediaType.IndexOf(ForwardSlashCharacter) + 1;
                 if (subTypeSuffixLength == -1)
                 {
                     return _mediaType.Subsegment(length);
@@ -276,7 +282,7 @@ namespace Microsoft.Net.Http.Headers
         {
             get
             {
-                var subTypeSuffixLength = _mediaType.LastIndexOf('+');
+                var subTypeSuffixLength = _mediaType.LastIndexOf(PlusCharacter);
                 if (subTypeSuffixLength == -1)
                 {
                     return default(StringSegment);
@@ -285,18 +291,27 @@ namespace Microsoft.Net.Http.Headers
             }
         }
 
+
+        /// <summary>
+        /// Get a <see cref="IList{T}"/> of facets of the <see cref="MediaTypeHeaderValue"/>. Facets are a
+        /// period separated list of StringSegments in the <see cref="SubTypeWithoutSuffix"/>.
+        /// </summary>
+        /// <example>
+        /// For the media type <c>"application/vnd.example+json"</c>, the property gives the value:
+        /// { vnd, example}
+        /// </example>
         public IList<StringSegment> Facets
         {
             get
             {
-                return SubTypeWithoutSuffix.Split(new char[] { '.' } ).ToList();
+                return SubTypeWithoutSuffix.Split(new char[] { PeriodCharacter } ).ToList();
             }
         }
 
         /// <summary>
         /// Gets whether this <see cref="MediaTypeHeaderValue"/> matches all types.
         /// </summary>
-        public bool MatchesAllTypes => MediaType.Equals("*/*", StringComparison.Ordinal);
+        public bool MatchesAllTypes => MediaType.Equals(, StringComparison.Ordinal);
 
         /// <summary>
         /// Gets whether this <see cref="MediaTypeHeaderValue"/> matches all subtypes.
@@ -307,7 +322,7 @@ namespace Microsoft.Net.Http.Headers
         /// <example>
         /// For the media type <c>"application/json"</c>, this property is <c>false</c>.
         /// </example>
-        public bool MatchesAllSubTypes => SubType.Equals("*", StringComparison.Ordinal);
+        public bool MatchesAllSubTypes => SubType.Equals(WildcardString, StringComparison.Ordinal);
 
         /// <summary>
         /// Gets whether this <see cref="MediaTypeHeaderValue"/> matches all subtypes, ignoring any structured syntax suffix.
@@ -318,7 +333,7 @@ namespace Microsoft.Net.Http.Headers
         /// <example>
         /// For the media type <c>"application/vnd.example+json"</c>, this property is <c>false</c>.
         /// </example>
-        public bool MatchesAllSubTypesWithoutSuffix => SubTypeWithoutSuffix.Equals("*", StringComparison.OrdinalIgnoreCase);
+        public bool MatchesAllSubTypesWithoutSuffix => SubTypeWithoutSuffix.Equals(WildcardString, StringComparison.OrdinalIgnoreCase);
 
         public bool IsReadOnly
         {
