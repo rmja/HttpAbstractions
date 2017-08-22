@@ -763,7 +763,6 @@ namespace Microsoft.Net.Http.Headers
         [InlineData("application/vnd.github+json", "application/vnd.github+json")]
         [InlineData("application/*", "application/entity+JSON")]
         [InlineData("*/*", "application/entity+json")]
-
         public void IsSubsetOfWithSuffixes_PositiveCases(string set, string subset)
         {
             // Arrange
