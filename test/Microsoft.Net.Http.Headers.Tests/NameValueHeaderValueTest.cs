@@ -626,7 +626,7 @@ namespace Microsoft.Net.Http.Headers
         [InlineData("value")]
         [InlineData("\"value\\\\morevalues\\\\evenmorevalues\"")]
         [InlineData("\"quoted \\\"value\"")]
-        public void GetAndSetEncodeValueRoundTrip(string input)
+        public void GetAndSetEncodeValueRoundTrip_ReturnsExpectedValue(string input)
         {
             var header = new NameValueHeaderValue("test");
             header.Value = input;
@@ -636,6 +636,19 @@ namespace Microsoft.Net.Http.Headers
             var actual = header.Value;
 
             Assert.Equal(input, actual);
+        }
+        [Theory]
+        [InlineData("val\nue")]
+        // See https://github.com/aspnet/HttpAbstractions/issues/923 for why invalid escape characters do not throw.
+        public void GetAndSetEncodeValueRoundTrip_Fails(string input)
+        {
+            var header = new NameValueHeaderValue("test");
+            header.SetAndEscapeValue(input);
+            var valueHeader = header.GetUnescapedValue();
+
+            var actual = header.Value;
+
+            Assert.NotEqual(input, actual);
         }
 
 
