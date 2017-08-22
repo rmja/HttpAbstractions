@@ -227,7 +227,7 @@ namespace Microsoft.Net.Http.Headers
         [InlineData("\"hello", false)]
         [InlineData("\"hello", false)]
         [InlineData("\"\"hello\"\"", true)]
-        public void RemoveQuotes_BehaviorCheck(string input, bool expected)
+        public void IsQuoted_BehaviorCheck(string input, bool expected)
         {
             var actual = HeaderUtilities.IsQuoted(input);
 
