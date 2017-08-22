@@ -638,8 +638,8 @@ namespace Microsoft.Net.Http.Headers
             Assert.Equal(input, actual);
         }
         [Theory]
-        [InlineData("val\nue")]
-        // See https://github.com/aspnet/HttpAbstractions/issues/923 for why invalid escape characters do not throw.
+        [InlineData("val\\nue")]
+        [InlineData("val\\bue")]
         public void GetAndSetEncodeValueRoundTrip_Fails(string input)
         {
             var header = new NameValueHeaderValue("test");
