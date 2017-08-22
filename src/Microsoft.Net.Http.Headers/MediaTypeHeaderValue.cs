@@ -13,16 +13,17 @@ namespace Microsoft.Net.Http.Headers
 {
     public class MediaTypeHeaderValue
     {
-        private const string CharsetString = "charset";
         private const string BoundaryString = "boundary";
-        private const string ValueString = "value";
-        private const string MediaTypeString = "mediaType";
-        private const string WildcardString = "*";
+        private const string CharsetString = "charset";
         private const string MatchesAllString = "*/*";
+        private const string MediaTypeString = "mediaType";
+        private const string QualityString = "q";
+        private const string ValueString = "value";
+        private const string WildcardString = "*";
 
-        private const char PlusCharacter = '+';
         private const char ForwardSlashCharacter = '/';
         private const char PeriodCharacter = '.';
+        private const char PlusCharacter = '+';
 
         private static readonly HttpHeaderParser<MediaTypeHeaderValue> SingleValueParser
             = new GenericHeaderParser<MediaTypeHeaderValue>(false, GetMediaTypeLength);
@@ -170,7 +171,7 @@ namespace Microsoft.Net.Http.Headers
         }
 
         /// <summary>
-        /// Gets the list of parameters of the <see cref="MediaTypeHeaderValue"/> if it has one.
+        /// Gets the list of parameters of the <see cref="MediaTypeHeaderValue"/> if it has them.
         /// </summary>
         public IList<NameValueHeaderValue> Parameters
         {
@@ -205,7 +206,7 @@ namespace Microsoft.Net.Http.Headers
         }
 
         /// <summary>
-        /// Gets the quality of the media type in the parameters of <see cref="MediaTypeHeaderValue"/>
+        /// Gets the media type of <see cref="MediaTypeHeaderValue"/>
         /// </summary>
         /// <example>
         /// For the media type <c>"application/json"</c>, the property gives the value
@@ -297,6 +298,7 @@ namespace Microsoft.Net.Http.Headers
         /// <summary>
         /// Get a <see cref="IList{T}"/> of facets of the <see cref="MediaTypeHeaderValue"/>. Facets are a
         /// period separated list of StringSegments in the <see cref="SubTypeWithoutSuffix"/>.
+        /// See <see href="https://tools.ietf.org/html/rfc6838#section-3">The RFC documentation on facets.</see>
         /// </summary>
         /// <example>
         /// For the media type <c>"application/vnd.example+json"</c>, the property gives the value:
@@ -593,7 +595,7 @@ namespace Microsoft.Net.Http.Headers
             }
             else
             {
-                mediaType = input.Substring(startIndex, typeLength) + "/" + input.Substring(current, subtypeLength);
+                mediaType = input.Substring(startIndex, typeLength) + ForwardSlashCharacter + input.Substring(current, subtypeLength);
             }
 
             return mediaTypeLength;
@@ -658,14 +660,14 @@ namespace Microsoft.Net.Http.Headers
                 // parameters locally; they make this one more specific.
                 foreach (var parameter in set._parameters)
                 {
-                    if (parameter.Name.Equals("*", StringComparison.OrdinalIgnoreCase))
+                    if (parameter.Name.Equals(WildcardString, StringComparison.OrdinalIgnoreCase))
                     {
                         // A parameter named "*" has no effect on media type matching, as it is only used as an indication
                         // that the entire media type string should be treated as a wildcard.
                         continue;
                     }
 
-                    if (parameter.Name.Equals("q", StringComparison.OrdinalIgnoreCase))
+                    if (parameter.Name.Equals(QualityString, StringComparison.OrdinalIgnoreCase))
                     {
                         // "q" and later parameters are not involved in media type matching. Quoting the RFC: The first
                         // "q" parameter (if any) separates the media-range parameter(s) from the accept-params.
