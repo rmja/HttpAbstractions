@@ -396,7 +396,7 @@ namespace Microsoft.Net.Http.Headers
             Assert.False(mediaType5.Equals(mediaType6), "charset vs. custom param.");
             Assert.False(mediaType1.Equals(mediaType7), "text/plain vs. text/other.");
         }
-        
+
         [Fact]
         public void Parse_SetOfValidValueStrings_ParsedCorrectly()
         {
@@ -790,6 +790,34 @@ namespace Microsoft.Net.Http.Headers
 
             // Assert
             Assert.False(result);
+        }
+
+        public static IEnumerable<object[]> MediaTypesWithFacets
+        {
+            get
+            {
+                return new[]
+                 {
+                     new object[] { "application/vdn.github", new List<StringSegment>(){ new StringSegment("vdn"), new StringSegment("github") } },
+                     new object[] { "application/vdn.github+json", new List<StringSegment>(){ new StringSegment("vdn"), new StringSegment("github") } },
+                     new object[] { "application/vdn.github.v3+json", new List<StringSegment>(){ new StringSegment("vdn"), new StringSegment("github"), new StringSegment("v3") } },
+                     new object[] { "application/vdn.github.+json", new List<StringSegment>(){ new StringSegment("vdn"), new StringSegment("github"), new StringSegment("") } },
+                 };
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(MediaTypesWithFacets))]
+        public void Facets_TestPositiveCases(string input, List<StringSegment> expected)
+        {
+            // Arrange
+            var mediaType = MediaTypeHeaderValue.Parse(input);
+
+            // Act
+            var result = mediaType.Facets;
+
+            // Assert
+            Assert.Equal(expected, result);
         }
 
         private void CheckValidParse(string input, MediaTypeHeaderValue expectedResult)
