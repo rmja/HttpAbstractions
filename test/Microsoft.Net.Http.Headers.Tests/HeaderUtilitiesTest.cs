@@ -212,26 +212,25 @@ namespace Microsoft.Net.Http.Headers
         }
 
         [Theory]
-        [InlineData("\"hello\\\\\"", "hello\\")]
-        [InlineData("\"hello\\\"\"", "hello\"")]
-        [InlineData("\"hello\\\\what\\\\\"", "hello\\what\\")]
-        [InlineData("hello\\\"foo\\\\bar\\\\baz\\\\", "hello\"foo\\bar\\baz\\")]
-        [InlineData("hello\\nfoo", "hello\\nfoo")]
         [InlineData("\"hello\"", "hello")]
-        [InlineData("hello", "hello")]
-        public void DecodeValueWithEscapeCharacters_Succeeds(string value, string expected)
+        [InlineData("\"hello", "\"hello")]
+        [InlineData("\"hello", "\"hello")]
+        [InlineData("\"\"hello\"\"", "\"hello\"")]
+        public void RemoveQuotes_BehaviorCheck(string input, string expected)
         {
-            var actual = HeaderUtilities.DecodeQuotedString(value);
+            var actual = HeaderUtilities.RemoveQuotes(input);
+
             Assert.Equal(expected, actual);
         }
-
         [Theory]
-        [InlineData("hello\\", "\"hello\\\\\"")]
-        [InlineData("hello\\what\\", "\"hello\\\\what\\\\\"")]
-        [InlineData("hello\\n", "\"hello\\\\n\"")]
-        public void EncodeValueWithEscapeCharacters_Succeeds(string value, string expected)
+        [InlineData("\"hello\"", true)]
+        [InlineData("\"hello", false)]
+        [InlineData("\"hello", false)]
+        [InlineData("\"\"hello\"\"", true)]
+        public void RemoveQuotes_BehaviorCheck(string input, bool expected)
         {
-            var actual = HeaderUtilities.EscapeAsQuotedString(value);
+            var actual = HeaderUtilities.IsQuoted(input);
+
             Assert.Equal(expected, actual);
         }
     }

@@ -578,24 +578,41 @@ namespace Microsoft.Net.Http.Headers
         [Theory]
         [InlineData("value", "value")]
         [InlineData("\"value\"", "value")]
+        [InlineData("\"hello\\\\\"", "hello\\")]
+        [InlineData("\"hello\\\"\"", "hello\"")]
+        [InlineData("\"hello\\\"foo\\\\bar\\\\baz\\\\\"", "hello\"foo\\bar\\baz\\")]
         [InlineData("\"quoted value\"", "quoted value")]
         [InlineData("\"quoted\\\"valuewithquote\"", "quoted\"valuewithquote")]
-        public void GetDecodedValue_ReturnsExpectedValue(string input, string expected)
+        public void GetUnescapedValue_ReturnsExpectedValue(string input, string expected)
         {
             var header = new NameValueHeaderValue("test", input);
 
-            var actual = header.GetUnescapeValue();
+            var actual = header.GetUnescapedValue();
 
             Assert.Equal(expected, actual);
         }
 
         [Theory]
+        [InlineData("\"hello\\\"")]
+        // See https://github.com/aspnet/HttpAbstractions/issues/923 for why invalid escape characters do not throw.
+        public void GetUnescapedValue_ThrowsFormatException(string input)
+        {
+            var header = new NameValueHeaderValue("test", input);
+
+            Assert.Throws<FormatException>(() => header.GetUnescapedValue());
+        }
+
+        [Theory]
         [InlineData("value", "value")]
+        [InlineData("23", "23")]
+        [InlineData(";;;", "\";;;\"")]
         [InlineData("\"value\"", "\"value\"")]
         [InlineData("\"assumes already encoded \\\"\"", "\"assumes already encoded \\\"\"")]
         [InlineData("unquoted \"value", "\"unquoted \\\"value\"")]
         [InlineData("value\\morevalues\\evenmorevalues", "\"value\\\\morevalues\\\\evenmorevalues\"")]
-        public void SetAndEncodeValueIfRequired_ReturnsExpectedValue(string input, string expected)
+        // We have to assume that the input needs to be quoted here
+        [InlineData("\"\"double quoted string\"\"", "\"\\\"\\\"double quoted string\\\"\\\"\"")]
+        public void SetAndEscapeValue_ReturnsExpectedValue(string input, string expected)
         {
             var header = new NameValueHeaderValue("test");
             header.SetAndEscapeValue(input);
@@ -613,13 +630,14 @@ namespace Microsoft.Net.Http.Headers
         {
             var header = new NameValueHeaderValue("test");
             header.Value = input;
-            var valueHeader = header.GetUnescapeValue();
+            var valueHeader = header.GetUnescapedValue();
             header.SetAndEscapeValue(valueHeader);
 
             var actual = header.Value;
 
             Assert.Equal(input, actual);
         }
+
 
         #region Helper methods
 
