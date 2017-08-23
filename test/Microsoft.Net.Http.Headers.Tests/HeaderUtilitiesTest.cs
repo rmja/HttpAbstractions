@@ -214,7 +214,7 @@ namespace Microsoft.Net.Http.Headers
         [Theory]
         [InlineData("\"hello\"", "hello")]
         [InlineData("\"hello", "\"hello")]
-        [InlineData("\"hello", "\"hello")]
+        [InlineData("hello\"", "hello\"")]
         [InlineData("\"\"hello\"\"", "\"hello\"")]
         public void RemoveQuotes_BehaviorCheck(string input, string expected)
         {
@@ -225,7 +225,7 @@ namespace Microsoft.Net.Http.Headers
         [Theory]
         [InlineData("\"hello\"", true)]
         [InlineData("\"hello", false)]
-        [InlineData("\"hello", false)]
+        [InlineData("hello\"", false)]
         [InlineData("\"\"hello\"\"", true)]
         public void IsQuoted_BehaviorCheck(string input, bool expected)
         {
