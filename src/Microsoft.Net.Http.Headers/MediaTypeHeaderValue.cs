@@ -25,6 +25,8 @@ namespace Microsoft.Net.Http.Headers
         private const char PeriodCharacter = '.';
         private const char PlusCharacter = '+';
 
+        private readonly char[] PeriodCharacterArray = new char[] { PeriodCharacter };
+
         private static readonly HttpHeaderParser<MediaTypeHeaderValue> SingleValueParser
             = new GenericHeaderParser<MediaTypeHeaderValue>(false, GetMediaTypeLength);
         private static readonly HttpHeaderParser<MediaTypeHeaderValue> MultipleValueParser
@@ -43,8 +45,8 @@ namespace Microsoft.Net.Http.Headers
         /// <summary>
         /// Initializes a <see cref="MediaTypeHeaderValue"/> instance.
         /// </summary>
-        /// <param name="mediaType">The <see cref="StringSegment"/> with the media type.
-        /// The media type constructed here must not have any trailing parameters.</param>
+        /// <param name="mediaType">A <see cref="StringSegment"/> representation of a media type.
+        /// The text provided must be a single media type without parameters. </param>
         public MediaTypeHeaderValue(StringSegment mediaType)
         {
             CheckMediaTypeFormat(mediaType, MediaTypeString);
@@ -54,8 +56,8 @@ namespace Microsoft.Net.Http.Headers
         /// <summary>
         /// Initializes a <see cref="MediaTypeHeaderValue"/> instance.
         /// </summary>
-        /// <param name="mediaType">The <see cref="StringSegment"/> with the media type.
-        /// The media type constructed here must not have any trailing parameters.</param>
+        /// <param name="mediaType">A <see cref="StringSegment"/> representation of a media type.
+        /// The text provided must be a single media type without parameters. </param>
         /// <param name="quality">The <see cref="double"/> with the quality of the media type.</param>
         public MediaTypeHeaderValue(StringSegment mediaType, double quality)
             : this(mediaType)
@@ -64,7 +66,8 @@ namespace Microsoft.Net.Http.Headers
         }
 
         /// <summary>
-        /// Gets the charset parameter of the <see cref="MediaTypeHeaderValue"/> if it has one.
+        /// Gets or sets the value of the charset parameter. Returns <see cref="StringSegment.Empty"/>
+        /// if there is no charset.
         /// </summary>
         public StringSegment Charset
         {
@@ -101,7 +104,8 @@ namespace Microsoft.Net.Http.Headers
         }
 
         /// <summary>
-        /// Gets the <see cref="System.Text.Encoding"/> of the <see cref="MediaTypeHeaderValue"/> if it has one.
+        /// Gets or sets the value of the Encoding parameter. Setting the Encoding will set
+        /// the <see cref="Charset"/> to <see cref="Encoding.WebName"/>.
         /// </summary>
         public Encoding Encoding
         {
@@ -136,7 +140,8 @@ namespace Microsoft.Net.Http.Headers
         }
 
         /// <summary>
-        /// Gets the boundary parameter of the <see cref="MediaTypeHeaderValue"/> if it has one.
+        /// Gets or sets the value of the boundary parameter. Returns <see cref="StringSegment.Empty"/>
+        /// if there is no boundary.
         /// </summary>
         public StringSegment Boundary
         {
@@ -171,7 +176,8 @@ namespace Microsoft.Net.Http.Headers
         }
 
         /// <summary>
-        /// Gets the list of parameters of the <see cref="MediaTypeHeaderValue"/> if it has them.
+        /// Gets or sets the media type's parameters. Returns an empty <see cref="IList{T}"/>
+        /// if there are no parameters.
         /// </summary>
         public IList<NameValueHeaderValue> Parameters
         {
@@ -193,7 +199,8 @@ namespace Microsoft.Net.Http.Headers
         }
 
         /// <summary>
-        /// Gets the quality of the media type in the parameters of <see cref="MediaTypeHeaderValue"/>
+        /// Gets or sets the value of the quality parameter. Returns null
+        /// if there is no quality.
         /// </summary>
         public double? Quality
         {
@@ -206,7 +213,8 @@ namespace Microsoft.Net.Http.Headers
         }
 
         /// <summary>
-        /// Gets the media type of <see cref="MediaTypeHeaderValue"/>
+        /// Gets or sets the value of the media type. Returns <see cref="StringSegment.Empty"/>
+        /// if there is no media type.
         /// </summary>
         /// <example>
         /// For the media type <c>"application/json"</c>, the property gives the value
@@ -229,6 +237,7 @@ namespace Microsoft.Net.Http.Headers
         /// <example>
         /// For the media type <c>"application/json"</c>, the property gives the value <c>"application"</c>.
         /// </example>
+        /// <remarks>See <see href="https://tools.ietf.org/html/rfc6838#section-4.2"/> for more details on the type.</remarks>
         public StringSegment Type
         {
             get
@@ -244,6 +253,7 @@ namespace Microsoft.Net.Http.Headers
         /// For the media type <c>"application/vnd.example+json"</c>, the property gives the value
         /// <c>"vnd.example+json"</c>.
         /// </example>
+        /// <remarks>See <see href="https://tools.ietf.org/html/rfc6838#section-4.2"/> for more details on the subtype.</remarks>
         public StringSegment SubType
         {
             get
@@ -253,7 +263,8 @@ namespace Microsoft.Net.Http.Headers
         }
 
         /// <summary>
-        /// Gets the subtype of the <see cref="MediaTypeHeaderValue"/>, excluding any structured syntax suffix.
+        /// Gets subtype of the <see cref="MediaTypeHeaderValue"/>, excluding any structured syntax suffix. Returns <see cref="StringSegment.Empty"/>
+        /// if there is no subtype without suffix.
         /// </summary>
         /// <example>
         /// For the media type <c>"application/vnd.example+json"</c>, the property gives the value
@@ -263,13 +274,13 @@ namespace Microsoft.Net.Http.Headers
         {
             get
             {
-                var subTypeSuffixLength = _mediaType.LastIndexOf(PlusCharacter);
-                var length = _mediaType.IndexOf(ForwardSlashCharacter) + 1;
-                if (subTypeSuffixLength == -1)
+                var startOfSuffix = _mediaType.LastIndexOf(PlusCharacter);
+                var startOfSubType = _mediaType.IndexOf(ForwardSlashCharacter) + 1;
+                if (startOfSuffix == -1)
                 {
-                    return _mediaType.Subsegment(length);
+                    return _mediaType.Subsegment(startOfSubType);
                 }
-                return _mediaType.Subsegment(length, subTypeSuffixLength - length);
+                return _mediaType.Subsegment(startOfSubType, startOfSuffix - startOfSubType);
             }
         }
 
@@ -285,12 +296,12 @@ namespace Microsoft.Net.Http.Headers
         {
             get
             {
-                var subTypeSuffixLength = _mediaType.LastIndexOf(PlusCharacter);
-                if (subTypeSuffixLength == -1)
+                var startOfSuffix = _mediaType.LastIndexOf(PlusCharacter);
+                if (startOfSuffix == -1)
                 {
                     return default(StringSegment);
                 }
-                return _mediaType.Subsegment(subTypeSuffixLength + 1);
+                return _mediaType.Subsegment(startOfSuffix + 1);
             }
         }
 
@@ -308,7 +319,7 @@ namespace Microsoft.Net.Http.Headers
         {
             get
             {
-                return SubTypeWithoutSuffix.Split(new char[] { PeriodCharacter } ).ToList();
+                return SubTypeWithoutSuffix.Split(PeriodCharacterArray).ToList();
             }
         }
 
