@@ -161,9 +161,7 @@ namespace Microsoft.Net.Http.Headers
             }
             else
             {
-                var encodedValue = EscapeAsQuotedString(value);
-                CheckValueFormat(encodedValue);
-                _value = encodedValue;
+                Value = EscapeAsQuotedString(value);
             }
         }
 
