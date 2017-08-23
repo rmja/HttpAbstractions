@@ -78,6 +78,8 @@ namespace Microsoft.Net.Http.Headers
                      new[] { "  application /  vnd.com-pany.some+entity!.v2+js.#$&^_n  ; q=\"0.3+1\"", "vnd.com-pany.some+entity!.v2", "js.#$&^_n"},
                      new[] { "   application/    +json", "", "json" },
                      new[] { "  application/   entitytype+json    ", "entitytype", "json" },
+                     new[] { "  applica+tion/   entitytype+json    ", "entitytype", "json" },
+
                  };
             }
         }
