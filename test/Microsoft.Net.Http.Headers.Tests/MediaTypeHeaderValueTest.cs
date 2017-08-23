@@ -40,7 +40,7 @@ namespace Microsoft.Net.Http.Headers
             AssertFormatException("text/plain;charset=utf-8"); // ctor takes only media-type name, no parameters
         }
 
-        public static IEnumerable<string[]> MediaTypesWithSuffixes
+        public static IEnumerable<object[]> MediaTypesWithSuffixes
         {
             get
             {
@@ -51,6 +51,8 @@ namespace Microsoft.Net.Http.Headers
                      new[] { "application/json+", "json", "" },
                      new[] { "application/+json", "", "json" },
                      new[] { "application/entitytype+json", "entitytype", "json" },
+                     new[] { "applica+tion/entitytype+json", "entitytype", "json" },
+
                  };
             }
         }
@@ -62,10 +64,10 @@ namespace Microsoft.Net.Http.Headers
             var result = new MediaTypeHeaderValue(mediaType);
 
             Assert.Equal(new StringSegment(expectedSubTypeWithoutSuffix), result.SubTypeWithoutSuffix); // TODO consider overloading to have SubTypeWithoutSuffix?
-            Assert.Equal(new StringSegment(expectedSubTypeSuffix), result.SubTypeSuffix);
+            Assert.Equal(new StringSegment(expectedSubTypeSuffix), result.Suffix);
         }
 
-        public static IEnumerable<string[]> MediaTypesWithSuffixesAndSpaces
+        public static IEnumerable<object[]> MediaTypesWithSuffixesAndSpaces
         {
             get
             {
@@ -87,7 +89,7 @@ namespace Microsoft.Net.Http.Headers
             var result = MediaTypeHeaderValue.Parse(mediaType);
 
             Assert.Equal(new StringSegment(expectedSubTypeWithoutSuffix), result.SubTypeWithoutSuffix); // TODO consider overloading to have SubTypeWithoutSuffix?
-            Assert.Equal(new StringSegment(expectedSubTypeSuffix), result.SubTypeSuffix);
+            Assert.Equal(new StringSegment(expectedSubTypeSuffix), result.Suffix);
         }
 
         [Theory]

@@ -94,7 +94,7 @@ namespace Microsoft.Net.Http.Headers
                         return 1;
                     }
                 }
-                else if (!mediaType1.SubTypeSuffix.Equals(mediaType2.SubTypeSuffix, StringComparison.OrdinalIgnoreCase))
+                else if (!mediaType1.Suffix.Equals(mediaType2.Suffix, StringComparison.OrdinalIgnoreCase))
                 {
                     if (mediaType1.MatchesAllSubTypesWithoutSuffix)
                     {

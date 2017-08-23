@@ -11,14 +11,15 @@ using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.Net.Http.Headers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class MediaTypeHeaderValue
     {
         private const string BoundaryString = "boundary";
         private const string CharsetString = "charset";
         private const string MatchesAllString = "*/*";
-        private const string MediaTypeString = "mediaType";
         private const string QualityString = "q";
-        private const string ValueString = "value";
         private const string WildcardString = "*";
 
         private const char ForwardSlashCharacter = '/';
@@ -49,7 +50,7 @@ namespace Microsoft.Net.Http.Headers
         /// The text provided must be a single media type without parameters. </param>
         public MediaTypeHeaderValue(StringSegment mediaType)
         {
-            CheckMediaTypeFormat(mediaType, MediaTypeString);
+            CheckMediaTypeFormat(mediaType, nameof(mediaType));
             _mediaType = mediaType;
         }
 
@@ -226,7 +227,7 @@ namespace Microsoft.Net.Http.Headers
             set
             {
                 HeaderUtilities.ThrowIfReadOnly(IsReadOnly);
-                CheckMediaTypeFormat(value, ValueString);
+                CheckMediaTypeFormat(value, nameof(value));
                 _mediaType = value;
             }
         }
@@ -274,13 +275,16 @@ namespace Microsoft.Net.Http.Headers
         {
             get
             {
-                var startOfSuffix = _mediaType.LastIndexOf(PlusCharacter);
-                var startOfSubType = _mediaType.IndexOf(ForwardSlashCharacter) + 1;
+                var subType = SubType;
+                var startOfSuffix = subType.LastIndexOf(PlusCharacter);
                 if (startOfSuffix == -1)
                 {
-                    return _mediaType.Subsegment(startOfSubType);
+                    return subType;
                 }
-                return _mediaType.Subsegment(startOfSubType, startOfSuffix - startOfSubType);
+                else
+                {
+                    return subType.Subsegment(startOfSuffix);
+                }
             }
         }
 
@@ -292,16 +296,20 @@ namespace Microsoft.Net.Http.Headers
         /// For the media type <c>"application/vnd.example+json"</c>, the property gives the value
         /// <c>"json"</c>.
         /// </example>
-        public StringSegment SubTypeSuffix
+        public StringSegment Suffix
         {
             get
             {
-                var startOfSuffix = _mediaType.LastIndexOf(PlusCharacter);
+                var subType = SubType;
+                var startOfSuffix = subType.LastIndexOf(PlusCharacter);
                 if (startOfSuffix == -1)
                 {
                     return default(StringSegment);
                 }
-                return _mediaType.Subsegment(startOfSuffix + 1);
+                else
+                {
+                    return subType.Subsegment(startOfSuffix + 1);
+                }
             }
         }
 
@@ -315,11 +323,11 @@ namespace Microsoft.Net.Http.Headers
         /// For the media type <c>"application/vnd.example+json"</c>, the property gives the value:
         /// <c>{"vnd", "example"}</c>
         /// </example>
-        public IList<StringSegment> Facets
+        public IEnumerable<StringSegment> Facets
         {
             get
             {
-                return SubTypeWithoutSuffix.Split(PeriodCharacterArray).ToList();
+                return SubTypeWithoutSuffix.Split(PeriodCharacterArray);
             }
         }
 
@@ -642,9 +650,9 @@ namespace Microsoft.Net.Http.Headers
             {
                 return true;
             }
-            if (set.SubTypeSuffix.HasValue)
+            if (set.Suffix.HasValue)
             {
-                if (SubTypeSuffix.HasValue)
+                if (Suffix.HasValue)
                 {
                     return MatchesSubtypeWithoutSuffix(set) && MatchesSubtypeSuffix(set);
                 }
@@ -707,7 +715,7 @@ namespace Microsoft.Net.Http.Headers
         {
             // We don't have support for wildcards on suffixes alone (e.g., "application/entity+*")
             // because there's no clear use case for it.
-            return set.SubTypeSuffix.Equals(SubTypeSuffix, StringComparison.OrdinalIgnoreCase);
+            return set.Suffix.Equals(Suffix, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
