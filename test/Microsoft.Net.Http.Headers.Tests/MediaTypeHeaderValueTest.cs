@@ -40,22 +40,16 @@ namespace Microsoft.Net.Http.Headers
             AssertFormatException("text/plain;charset=utf-8"); // ctor takes only media-type name, no parameters
         }
 
-        public static IEnumerable<object[]> MediaTypesWithSuffixes
-        {
-            get
-            {
-                return new List<object[]>
+        public static TheoryData<string, string, string> MediaTypesWithSuffixes =>
+                 new TheoryData<string, string, string>
                  {
                      // See https://tools.ietf.org/html/rfc6838#section-4.2 for allowed names spec
-                     new[] { "application/json", "json", null },
-                     new[] { "application/json+", "json", "" },
-                     new[] { "application/+json", "", "json" },
-                     new[] { "application/entitytype+json", "entitytype", "json" },
-                     new[] { "applica+tion/entitytype+json", "entitytype", "json" },
-
+                     { "application/json", "json", null },
+                     { "application/json+", "json", "" },
+                     { "application/+json", "", "json" },
+                     { "application/entitytype+json", "entitytype", "json" },
+                     { "applica+tion/entitytype+json", "entitytype", "json" },
                  };
-            }
-        }
 
         [Theory]
         [MemberData(nameof(MediaTypesWithSuffixes))]
@@ -67,22 +61,16 @@ namespace Microsoft.Net.Http.Headers
             Assert.Equal(new StringSegment(expectedSubTypeSuffix), result.Suffix);
         }
 
-        public static IEnumerable<object[]> MediaTypesWithSuffixesAndSpaces
-        {
-            get
-            {
-                return new List<object[]>
+        public static TheoryData<string, string, string> MediaTypesWithSuffixesAndSpaces =>
+                 new TheoryData<string, string, string>
                  {
                      // See https://tools.ietf.org/html/rfc6838#section-4.2 for allowed names spec
-                     new[] { "    application   /  json+xml", "json", "xml" },
-                     new[] { "  application /  vnd.com-pany.some+entity!.v2+js.#$&^_n  ; q=\"0.3+1\"", "vnd.com-pany.some+entity!.v2", "js.#$&^_n"},
-                     new[] { "   application/    +json", "", "json" },
-                     new[] { "  application/   entitytype+json    ", "entitytype", "json" },
-                     new[] { "  applica+tion/   entitytype+json    ", "entitytype", "json" },
-
+                     { "    application   /  json+xml", "json", "xml" },
+                     { "  application /  vnd.com-pany.some+entity!.v2+js.#$&^_n  ; q=\"0.3+1\"", "vnd.com-pany.some+entity!.v2", "js.#$&^_n"},
+                     { "   application/    +json", "", "json" },
+                     { "  application/   entitytype+json    ", "entitytype", "json" },
+                     { "  applica+tion/   entitytype+json    ", "entitytype", "json" }
                  };
-            }
-        }
 
         [Theory]
         [MemberData(nameof(MediaTypesWithSuffixesAndSpaces))]
@@ -799,23 +787,18 @@ namespace Microsoft.Net.Http.Headers
             Assert.False(result);
         }
 
-        public static IEnumerable<object[]> MediaTypesWithFacets
-        {
-            get
-            {
-                return new[]
+        public static TheoryData<string, List<StringSegment>> MediaTypesWithFacets =>
+                 new TheoryData<string, List<StringSegment>>
                  {
-                     new object[] { "application/vdn.github",
+                     { "application/vdn.github",
                          new List<StringSegment>(){ new StringSegment("vdn"), new StringSegment("github") } },
-                     new object[] { "application/vdn.github+json",
+                     { "application/vdn.github+json",
                          new List<StringSegment>(){ new StringSegment("vdn"), new StringSegment("github") } },
-                     new object[] { "application/vdn.github.v3+json",
+                     { "application/vdn.github.v3+json",
                          new List<StringSegment>(){ new StringSegment("vdn"), new StringSegment("github"), new StringSegment("v3") } },
-                     new object[] { "application/vdn.github.+json",
+                     { "application/vdn.github.+json",
                          new List<StringSegment>(){ new StringSegment("vdn"), new StringSegment("github"), new StringSegment("") } },
                  };
-            }
-        }
 
         [Theory]
         [MemberData(nameof(MediaTypesWithFacets))]
