@@ -44,7 +44,7 @@ namespace Microsoft.Net.Http.Headers
         {
             get
             {
-                return new List<string[]>
+                return new List<object[]>
                  {
                      // See https://tools.ietf.org/html/rfc6838#section-4.2 for allowed names spec
                      new[] { "application/json", "json", null },
@@ -71,7 +71,7 @@ namespace Microsoft.Net.Http.Headers
         {
             get
             {
-                return new List<string[]>
+                return new List<object[]>
                  {
                      // See https://tools.ietf.org/html/rfc6838#section-4.2 for allowed names spec
                      new[] { "    application   /  json+xml", "json", "xml" },
@@ -761,7 +761,6 @@ namespace Microsoft.Net.Http.Headers
         [Theory]
         [InlineData("application/entity+json", "application/entity+json")]
         [InlineData("application/*+json", "application/entity+json")]
-        [InlineData("application/*+json", "application/entity+json")]
         [InlineData("application/*+json", "application/*+json")]
         [InlineData("application/*", "application/*+JSON")]
         [InlineData("application/vnd.github+json", "application/vnd.github+json")]
@@ -785,7 +784,6 @@ namespace Microsoft.Net.Http.Headers
         [InlineData("application/entity+json", "application/entity.v2+json")]
         [InlineData("application/*+json", "application/entity+txt")]
         [InlineData("application/*+*", "application/json")]
-        [InlineData("application/entity+json", "application/entity.v2+json")]
         [InlineData("application/entity+*", "application/entity+json")] // We don't allow suffixes to be wildcards
         [InlineData("application/*+*", "application/entity+json")] // We don't allow suffixes to be wildcards
         public void IsSubSetOfWithSuffixes_NegativeCases(string set, string subset)

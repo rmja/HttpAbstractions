@@ -283,7 +283,7 @@ namespace Microsoft.Net.Http.Headers
                 }
                 else
                 {
-                    return subType.Subsegment(startOfSuffix);
+                    return subType.Subsegment(0, startOfSuffix);
                 }
             }
         }
