@@ -351,6 +351,9 @@ namespace Microsoft.Net.Http.Headers
         public bool MatchesAllSubTypesWithoutSuffix =>
             SubTypeWithoutSuffix.Equals(WildcardString, StringComparison.OrdinalIgnoreCase);
 
+        /// <summary>
+        /// Gets whether the <see cref="MediaTypeHeaderValue"/> is readonly.
+        /// </summary>
         public bool IsReadOnly
         {
             get { return _isReadOnly; }
@@ -453,7 +456,7 @@ namespace Microsoft.Net.Http.Headers
         }
 
         /// <summary>
-        /// Takes a media type and parses it into the <see cref="MediaTypeHeaderValue"></see> and its associated parameters.
+        /// Takes a media type and parses it into the <see cref="MediaTypeHeaderValue" /> and its associated parameters.
         /// </summary>
         /// <param name="input">The <see cref="StringSegment"/> with the media type.</param>
         /// <returns>The parsed <see cref="MediaTypeHeaderValue"/>.</returns>
@@ -464,7 +467,7 @@ namespace Microsoft.Net.Http.Headers
         }
 
         /// <summary>
-        /// Takes a media type, which can include parameters, and parses it into the <see cref="MediaTypeHeaderValue"></see> and its associated parameters.
+        /// Takes a media type, which can include parameters, and parses it into the <see cref="MediaTypeHeaderValue" /> and its associated parameters.
         /// </summary>
         /// <param name="input">The <see cref="StringSegment"/> with the media type. The media type constructed here must not have an y</param>
         /// <param name="parsedValue">The parsed <see cref="MediaTypeHeaderValue"/></param>
@@ -487,7 +490,7 @@ namespace Microsoft.Net.Http.Headers
 
         /// <summary>
         /// Takes an <see cref="IList{T}"/> of <see cref="string"/> and parses it into the <see cref="MediaTypeHeaderValue"></see> and its associated parameters.
-        /// Throws if there is invalid data in the string.
+        /// Throws if there is invalid data in a string.
         /// </summary>
         /// <param name="inputs">A list of media types</param>
         /// <returns>The parsed <see cref="MediaTypeHeaderValue"/>.</returns>
@@ -509,7 +512,6 @@ namespace Microsoft.Net.Http.Headers
 
         /// <summary>
         /// Takes an <see cref="IList{T}"/> of <see cref="string"/> and parses it into the <see cref="MediaTypeHeaderValue"></see> and its associated parameters.
-        /// Throws if there is invalid data in the string.
         /// </summary>
         /// <param name="inputs">A list of media types</param>
         /// <param name="parsedValues">The parsed <see cref="MediaTypeHeaderValue"/>.</param>
