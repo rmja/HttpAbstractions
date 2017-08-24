@@ -12,7 +12,7 @@ using Microsoft.Extensions.Primitives;
 namespace Microsoft.Net.Http.Headers
 {
     /// <summary>
-    /// 
+    /// Representation of the media type header. See <see href="https://tools.ietf.org/html/rfc6838"/>.
     /// </summary>
     public class MediaTypeHeaderValue
     {
@@ -26,7 +26,7 @@ namespace Microsoft.Net.Http.Headers
         private const char PeriodCharacter = '.';
         private const char PlusCharacter = '+';
 
-        private readonly char[] PeriodCharacterArray = new char[] { PeriodCharacter };
+        private static readonly char[] PeriodCharacterArray = new char[] { PeriodCharacter };
 
         private static readonly HttpHeaderParser<MediaTypeHeaderValue> SingleValueParser
             = new GenericHeaderParser<MediaTypeHeaderValue>(false, GetMediaTypeLength);
