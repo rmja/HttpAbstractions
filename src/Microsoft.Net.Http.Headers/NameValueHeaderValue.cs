@@ -444,7 +444,7 @@ namespace Microsoft.Net.Http.Headers
                     if (input.Length == i + 1)
                     {
                         throw new FormatException(string.Format(CultureInfo.InvariantCulture,
-                            "The header value is invalid, illegal escape character in input: '{0}', position: '{1}'", input, i + 1));
+                            "The header value is invalid. illegal escape character in input: '{0}', position: '{1}'", input, i + 1));
                     }
                     else
                     {
@@ -492,7 +492,7 @@ namespace Microsoft.Net.Http.Headers
                     if (input.Length == i + 1)
                     {
                         throw new FormatException(string.Format(CultureInfo.InvariantCulture,
-                          "The header value is invalid, illegal escape character in input: '{0}', position: '{1}'", input, i + 1));
+                          "The header value is invalid. illegal escape character in input: '{0}', position: '{1}'", input, i + 1));
                     }
                     else if (input[i + 1] == '\\')
                     {
